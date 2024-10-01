@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "github.com/Simo672K/pdf/pkg/builder"
 
+func main() {
+	builder.BuildPdf()
 }
