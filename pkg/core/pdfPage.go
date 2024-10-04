@@ -9,6 +9,8 @@ type PDFObjectPages struct {
 
 type PDFObjectPage struct {
 	PDFObject
+	parentRef *ObjectRef
+	content   *ObjectRef
 }
 
 func (pgsObj *PDFObjectPages) ObjectRawSource() string {
@@ -32,8 +34,17 @@ func (pgsObj *PDFObjectPages) PsOKidsSetter(kids []PDFObjectPage) {
 	pgsObj.kidsRef = []ObjectRef{}
 
 	for _, page := range kids {
-		pgsObj.kidsRef = append(pgsObj.kidsRef, *page.objRef)
+		pgsObj.kidsRef = append(pgsObj.kidsRef, page.objRef)
 	}
+}
+
+func (pgObj *PDFObjectPage) ObjectRawSource() string {
+	rawPdfObjectSignature := fmt.Sprintf("%d %d obj", pgObj.objRef.objectNum, pgObj.objRef.generationNum)
+	rawPdfObjectSignature += "\n<< /Type /Page "
+	rawPdfObjectSignature += fmt.Sprintf("/Parent %d %d R /MediaBox [0 0 612 792] ", pgObj.parentRef.objectNum, pgObj.parentRef.generationNum)
+	rawPdfObjectSignature += fmt.Sprintf("/Contents %d %d R >>\nendobj\n", pgObj.content.objectNum, pgObj.content.generationNum)
+
+	return rawPdfObjectSignature
 }
 
 func CreatePagesObject() {
@@ -44,10 +55,15 @@ func CreatePagesObject() {
 	// Creating page object as a kid to the initialized pages object
 	kidPage := PDFObjectPage{}
 	kidPage.objRef = GenerateObjectRef()
+	kidPage.parentRef = &pop.objRef
+	content := GenerateObjectRef()
+	kidPage.content = &content
 
 	kidPage1 := PDFObjectPage{}
 	kidPage1.objRef = GenerateObjectRef()
+	kidPage1.parentRef = &pop.objRef
+	kidPage1.content = &content
 
 	pop.PsOKidsSetter([]PDFObjectPage{kidPage, kidPage1})
-	pop.ObjectRawSource()
+	fmt.Println(pop.ObjectRawSource() + kidPage.ObjectRawSource() + kidPage1.ObjectRawSource())
 }

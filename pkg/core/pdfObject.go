@@ -16,14 +16,14 @@ type ObjectRef struct {
 }
 
 type PDFObject struct {
-	objRef                *ObjectRef
+	objRef                ObjectRef
 	objectType            ObjectType
 	rawPdfObjectSignature string
 }
 
-func GenerateObjectRef() *ObjectRef {
-	ObjectsRefRegisteryHolder.LastRef++
-	return &ObjectRef{
+func GenerateObjectRef() ObjectRef {
+	ObjectsRefRegisteryHolder.LastRef += 1
+	return ObjectRef{
 		objectNum:     ObjectsRefRegisteryHolder.LastRef,
 		generationNum: 0,
 	}
