@@ -13,7 +13,7 @@ func BuildPdf() {
 		fmt.Println("error accured while generating pdf")
 	}
 
-	core.CreatePageObject()
+	core.CreatePagesObject()
 	_, err = pdfFile.Write(core.HelloWorldPDF())
 	if err != nil {
 		fmt.Println("error accured while writing to pdf")

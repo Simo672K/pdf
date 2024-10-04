@@ -5,6 +5,12 @@ type PDFWriter interface {
 	SetHeader() (string, error)
 }
 
+var ObjectsRefRegisteryHolder ObjectsRefRegistery
+
+func init() {
+	ObjectsRefRegisteryHolder.LastRef = 0
+}
+
 type PDFStruct struct {
 	Header PDFHeader
 }

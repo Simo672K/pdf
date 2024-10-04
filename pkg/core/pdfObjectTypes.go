@@ -1,9 +1,5 @@
 package core
 
-type PDFObjectPage struct {
-	PDFObject
-}
-
 type PDFObjectFont struct {
 	PDFObject
 }
