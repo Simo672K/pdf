@@ -1,6 +1,9 @@
 package core
 
-func PdfHeader() []byte {
+type PDFHeader struct {
+	Header []byte
+}
 
-	return nil
+func (h *PDFHeader) SetPDFHeader() {
+	h.Header = []byte(PDFHEADER_VERSION)
 }
