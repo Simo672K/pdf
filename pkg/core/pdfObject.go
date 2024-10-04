@@ -8,24 +8,24 @@ type ObjectsRefRegistery struct {
 	LastRef ObjRefNum
 }
 
-type ObjectRef interface {
-	GenerateObjectRef() *ObjectContentRef
+type ObjectRefer interface {
+	GenerateObjectRef() *ObjectRef
 }
 
-type ObjectContentRef struct {
+type ObjectRef struct {
 	objectNum     ObjRefNum
 	generationNum int
 }
 
 type PDFObject struct {
-	ObjectContentRef
-	RawSource  string
-	objectType ObjectType
+	objRef                *ObjectRef
+	objectType            ObjectType
+	rawPdfObjectSignature string
 }
 
 type PDFObjectPages struct {
 	PDFObject
-	kids []ObjectContentRef
+	kids []ObjectRef
 }
 
 var ObjectsRefRegisteryHolder ObjectsRefRegistery
@@ -35,26 +35,40 @@ func init() {
 }
 
 func (pgsObj *PDFObjectPages) ConstructPagesObject() {
-	rawPdfTypeSignature := fmt.Sprintf("%d %d obj", pgsObj.objectNum, pgsObj.generationNum)
-	rawPdfTypeSignature += "\n<< /Type /Pages"
-	rawPdfTypeSignature += "/Kids ["
-	for _, v := range pgsObj.kids {
-		rawPdfTypeSignature += fmt.Sprintf("%d %d R", v.objectNum, v.generationNum)
-		rawPdfTypeSignature += " "
-	}
-	rawPdfTypeSignature += "] >>\nendobj\n"
+	rawPdfObjectSignature := fmt.Sprintf("%d %d obj", pgsObj.objRef.objectNum, pgsObj.objRef.generationNum)
+	rawPdfObjectSignature += "\n<< /Type /Pages "
+	rawPdfObjectSignature += "/Kids ["
 
-	fmt.Println(rawPdfTypeSignature)
+	kidsLen := len(pgsObj.kids)
+	for i, v := range pgsObj.kids {
+		if i > 0 && i <= kidsLen-1 {
+			rawPdfObjectSignature += " "
+		}
+		rawPdfObjectSignature += fmt.Sprintf("%d %d R", v.objectNum, v.generationNum)
+	}
+	rawPdfObjectSignature += "] >>\nendobj\n"
+
+	fmt.Println(rawPdfObjectSignature)
 }
 
-func GenerateObjectRef() *ObjectContentRef {
+func GenerateObjectRef() *ObjectRef {
 	ObjectsRefRegisteryHolder.LastRef++
-	return &ObjectContentRef{
+	return &ObjectRef{
 		objectNum:     ObjectsRefRegisteryHolder.LastRef,
 		generationNum: 0,
 	}
 }
 
-func (pgsObj *PDFObjectPages) POPagesContentSetter(childrensRef []ObjectContentRef) {
+func (pgsObj *PDFObjectPages) POPagesContentSetter(childrensRef []ObjectRef) {
 	pgsObj.kids = childrensRef
+}
+
+func CreatePageObject() {
+	pop := PDFObjectPages{}
+	pop.objRef = GenerateObjectRef()
+	contentRef := GenerateObjectRef()
+	contentRef1 := GenerateObjectRef()
+	contentRef2 := GenerateObjectRef()
+	pop.POPagesContentSetter([]ObjectRef{*contentRef, *contentRef1, *contentRef2})
+	pop.ConstructPagesObject()
 }
